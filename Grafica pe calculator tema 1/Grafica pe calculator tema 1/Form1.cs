@@ -15,42 +15,39 @@ namespace Grafica_pe_calculator_tema_1
         int x0, x1, y0, y1; // punctul a(x0,y0),b(x1,y1)
         long tick = 0, tick1 = 0;
         Bitmap map;
+        Bitmap bg_map;
         Timer aux; //Timer pentru limitarea randarii 
-        private void Form1_MouseUp(object sender, MouseEventArgs e)
-        {
-            x1 = e.X;
-            y1 = e.Y;
-            MakeLine();
-        }
+       
 
         private void MakeLine()
         {
             map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            BersenhamLine(x0, y0, x1, y1, trackBar1.Value,map);
             pictureBox1.Image = map;
-            BersenhamLine(x0, y0, x1, y1, trackBar1.Value);
+
         }
 
-        private void BersenhamLine(int x0, int y0, int x1, int y1, int thickness)
+        private void BersenhamLine(int x0, int y0, int x1, int y1, int thickness,Bitmap map)
         {
             if (Math.Abs(y1 - y0) < Math.Abs(x1 - x0))
             {
                 if (x0 > x1)
-                    plotLineHigh(x1, y1, x0, y0, thickness);
+                    PlotLineHigh(x1, y1, x0, y0, thickness,map);
                 else
-                    plotLineHigh(x0, y0, x1, y1, thickness);
+                    PlotLineHigh(x0, y0, x1, y1, thickness,map);
 
             }
             else
             {
                 if (y0 > y1)
-                    plotLineLow(x1, y1, x0, y0, thickness);
+                    PlotLineLow(x1, y1, x0, y0, thickness, map);
                 else
-                    plotLineLow(x0, y0, x1, y1, thickness);
+                    PlotLineLow(x0, y0, x1, y1, thickness, map);
 
             }
         }
 
-        private void plotLineLow(int x0, int y0, int x1, int y1, int thickness)
+        private void PlotLineLow(int x0, int y0, int x1, int y1, int thickness, Bitmap map)
         {
             int dx = x1 - x0;
             int dy = y1 - y0;
@@ -77,7 +74,7 @@ namespace Grafica_pe_calculator_tema_1
             }
         }
 
-        private void plotLineHigh(int x0, int y0, int x1, int y1, int thickness)
+        private void PlotLineHigh(int x0, int y0, int x1, int y1, int thickness, Bitmap map)
         {
             int dx = x1 - x0;
             int dy = y1 - y0;
@@ -113,7 +110,7 @@ namespace Grafica_pe_calculator_tema_1
             y0 = e.Y;
         }
 
-        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -121,22 +118,46 @@ namespace Grafica_pe_calculator_tema_1
                 {
                     tick = tick1;
 
+                    // ifuri-le asta sunt pentru limitarea  x si y in zona de desenat
                     if (e.X > trackBar1.Value && e.X < pictureBox1.Width)
                         x1 = e.X;
                     else if (e.X >= pictureBox1.Width)
                         x1 = pictureBox1.Width - 1 - trackBar1.Value;
                     else
-                        x1 = 1+ trackBar1.Value;
+                        x1 = 1 + trackBar1.Value;
                     if (e.Y > trackBar1.Value && e.Y < pictureBox1.Height)
                         y1 = e.Y;
                     else if (e.Y >= pictureBox1.Height)
                         y1 = pictureBox1.Height - 1 - trackBar1.Value;
                     else
-                        y1 = 1+ trackBar1.Value;
+                        y1 = 1 + trackBar1.Value;
 
                     MakeLine();
                 }
+
             }
+        }
+
+        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                 MakeLinePermanent();
+            }
+            if (e.Button == MouseButtons.Right) // Clear la zona de desenat
+            {
+                bg_map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+                pictureBox1.BackgroundImage = bg_map;
+                map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+                pictureBox1.Image = map;
+            }
+
+        }
+
+        private void MakeLinePermanent()
+        {
+            BersenhamLine(x0, y0, x1, y1, trackBar1.Value,bg_map);
+            pictureBox1.BackgroundImage = bg_map;
         }
 
         public Form1()
@@ -147,6 +168,7 @@ namespace Grafica_pe_calculator_tema_1
         private void Form1_Load(object sender, EventArgs e)
         {
             map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            bg_map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             aux = new Timer();
             aux.Interval = 16;
             aux.Tick += Aux_Tick;
