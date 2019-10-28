@@ -10,6 +10,15 @@ using System.Windows.Forms;
 
 namespace Grafica_pe_calculator_tema_1
 {
+    public enum Pattern
+    {
+        a1,
+        a2,
+        a3,
+        b1,
+        b2,
+        b3
+    }
     public partial class Form1 : Form
     {
         int x0, x1, y0, y1; // punctul a(x0,y0),b(x1,y1)
@@ -22,86 +31,85 @@ namespace Grafica_pe_calculator_tema_1
         private void MakeLine()
         {
             map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            BersenhamLine(x0, y0, x1, y1, trackBar1.Value,map);
+            AlgorithmSelector(x0, y0, x1, y1, trackBar1.Value,map);
             pictureBox1.Image = map;
 
         }
 
-        private void BersenhamLine(int x0, int y0, int x1, int y1, int thickness,Bitmap map)
+        private void AlgorithmSelector(int x0, int y0, int x1, int y1, int thickness,Bitmap map)
         {
             if (Math.Abs(y1 - y0) < Math.Abs(x1 - x0))
             {
                 if (x0 > x1)
-                    PlotLineHigh(x1, y1, x0, y0, thickness,map);
+                    DoubleStepLow(x1, y1, x0, y0,map);
                 else
-                    PlotLineHigh(x0, y0, x1, y1, thickness,map);
-
+                    DoubleStepLow(x0, y0, x1, y1,map);
             }
             else
             {
                 if (y0 > y1)
-                    PlotLineLow(x1, y1, x0, y0, thickness, map);
+                    DoubleStepHigh(x1, y1, x0, y0, map);
                 else
-                    PlotLineLow(x0, y0, x1, y1, thickness, map);
+                    DoubleStepHigh(x0, y0, x1, y1, map);
 
             }
         }
 
-        private void PlotLineLow(int x0, int y0, int x1, int y1, int thickness, Bitmap map)
-        {
-            int dx = x1 - x0;
-            int dy = y1 - y0;
-            int xi = 1;
-            if (dx < 0)
-            {
-                xi = -1;
-                dx = -dx;
-            }
-            int D = 2 * dx - dy;
-            int x = x0;
-            for (int y = y0; y < y1; y++)
-            {
-                for (int i = -(thickness) / 2; i <= (thickness) / 2; i++)
-                {
-                    map.SetPixel(x + i, y, Color.Black);
-                }
-                if (D > 0)
-                {
-                    x += xi;
-                    D -= 2 * dy;
-                }
-                D += 2 * dx;
-            }
-        }
+        //private void PlotLineLow(int x0, int y0, int x1, int y1, int thickness, Bitmap map)
+        //{
+        //    int dx = x1 - x0;
+        //    int dy = y1 - y0;
+        //    int xi = 1;
+        //    if (dx < 0)
+        //    {
+        //        xi = -1;
+        //        dx = -dx;
+        //    }
+        //    int D = 2 * dx - dy;
+        //    int x = x0;
+        //    for (int y = y0; y < y1; y++)
+        //    {
+        //        for (int i = -(thickness) / 2; i <= (thickness) / 2; i++)
+        //        {
+        //            map.SetPixel(x + i, y, Color.Black);
+        //        }
+        //        if (D > 0)
+        //        {
+        //            x += xi;
+        //            D -= 2 * dy;
+        //        }
+        //        D += 2 * dx;
+        //    }
+        //}
 
-        private void PlotLineHigh(int x0, int y0, int x1, int y1, int thickness, Bitmap map)
-        {
-            int dx = x1 - x0;
-            int dy = y1 - y0;
-            int yi = 1;
-            if (dy < 0)
-            {
-                yi = -1;
-                dy = -dy;
-            }
-            int D = 2 * dy - dx;
-            int y = y0;
-            for (int x = x0; x < x1; x++)
-            {
-                for (int i = -(thickness) / 2; i <= (thickness) / 2; i++)
-                {
+        //private void PlotLineHigh(int x0, int y0, int x1, int y1, int thickness, Bitmap map)
+        //{
+        //    int dx = x1 - x0;
+        //    int dy = y1 - y0;
+        //    int yi = 1;
+        //    if (dy < 0)
+        //    {
+        //        yi = -1;
+        //        dy = -dy;
+        //    }
+        //    int D = 2 * dy - dx;
+        //    int y = y0;
+        //    for (int x = x0; x < x1; x++)
+        //    {
+        //        for (int i = -(thickness) / 2; i <= (thickness) / 2; i++)
+        //        {
 
-                    map.SetPixel(x, y+i, Color.Black);
+        //            map.SetPixel(x, y+i, Color.Black);
                     
-                }
-                if (D > 0)
-                {
-                    y += yi;
-                    D -= 2 * dx;
-                }
-                D += 2 * dy;
-            }
-        }
+        //        }
+        //        if (D > 0)
+        //        {
+        //            y += yi;
+        //            D -= 2 * dx;
+        //        }
+        //        D += 2 * dy;
+        //    }
+        //}
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -140,10 +148,7 @@ namespace Grafica_pe_calculator_tema_1
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
-            {
-                 MakeLinePermanent();
-            }
+            MakeLinePermanent();
             if (e.Button == MouseButtons.Right) // Clear la zona de desenat
             {
                 bg_map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
@@ -156,8 +161,142 @@ namespace Grafica_pe_calculator_tema_1
 
         private void MakeLinePermanent()
         {
-            BersenhamLine(x0, y0, x1, y1, trackBar1.Value,bg_map);
             pictureBox1.BackgroundImage = bg_map;
+            AlgorithmSelector(x0, y0, x1, y1, trackBar1.Value,bg_map);
+            pictureBox1.BackgroundImage = bg_map;
+        }
+
+        private void DoubleStepLow(int x0, int y0, int x1, int y1, Bitmap map)// pentru panta intre 1 si -1;
+        {
+            int current_x, current_y, incrE, incrNE, cond, dx, dy, d;
+            dx = x1 - x0;
+            dy = y1 - y0;
+            int sign = 1;
+            if (dy<0)
+            {
+                sign = -1;
+                dy = -dy;
+            }
+            current_x = x0;
+            current_y = y0;
+            incrE = 2 * dy;
+            incrNE = 2 * (dy - dx);
+            cond = 4 * dy;
+            d = 4 * dy - dx;
+            map.SetPixel(current_x,current_y,Color.Black);
+            while (current_x < x1)
+            {
+                if(d < 0)
+                {
+                    DrawPixels(Pattern.a1, current_x, current_y, map, sign);
+                    d += 2*incrE;
+                }
+                else
+                {
+                    if (d<=cond)
+                    {
+                        DrawPixels(Pattern.a2, current_x, current_y, map, sign);
+                        current_y += 1 * sign;
+                        d += incrNE;
+                        d += incrE;
+
+                    }
+                    else
+                    {
+                        DrawPixels(Pattern.a3, current_x, current_y, map, sign);
+                        current_y += 2*sign;
+                        d += 2*incrNE;
+
+                    }
+                }
+                current_x += 2;
+            }
+        }
+        private void DoubleStepHigh(int x0, int y0, int x1, int y1, Bitmap map)
+        {
+            int current_x, current_y, incrE, incrNE, cond, dx, dy, d;
+            dx = x1 - x0;
+            dy = y1 - y0;
+            int sign = 1;
+            if (dx < 0)
+            {
+                sign = -1;
+                dx = -dx;
+            }
+            current_x = x0;
+            current_y = y0;
+            incrE = 2 * dx;
+            incrNE = 2 * (dx - dy);
+            cond = 4 * dx;
+            d = 4 * dx - dy;
+            map.SetPixel(current_x, current_y, Color.Black);
+            while (current_y < y1)
+            {
+                if (d < 0)
+                {
+                    DrawPixels(Pattern.b1, current_x, current_y, map, sign);
+                    d += 2 * incrE;
+                }
+                else
+                {
+                    if (d <= cond)
+                    {
+                        DrawPixels(Pattern.b2, current_x, current_y, map, sign);
+                        current_x += 1 * sign;
+                        d += incrNE;
+                        d += incrE;
+
+                    }
+                    else
+                    {
+                        DrawPixels(Pattern.b3, current_x, current_y, map, sign);
+                        current_x += 2 * sign;
+                        d += 2 * incrNE;
+
+                    }
+                }
+                current_y += 2;
+            }
+        }
+        private void DrawPixels(Pattern pattern, int x, int y, Bitmap map, int sign)
+        {
+            try
+            {
+                switch (pattern)
+                {
+                    case Pattern.a1:
+                        map.SetPixel(x + 1, y, Color.Black);
+                        map.SetPixel(x + 2, y, Color.Black);
+                        break;
+                    case Pattern.a2:
+                        map.SetPixel(x + 1, y, Color.Black);
+                        map.SetPixel(x + 2, y + (1 * sign), Color.Black);
+                        break;
+                    case Pattern.a3:
+                        map.SetPixel(x + 1, y + (1 * sign), Color.Black);
+                        map.SetPixel(x + 2, y + (2 * sign), Color.Black);
+                        break;
+                    case Pattern.b1:
+                        map.SetPixel(x, y + 1, Color.Black);
+                        map.SetPixel(x, y + 2, Color.Black);
+                        break;
+                    case Pattern.b2:
+                        map.SetPixel(x, y + 1, Color.Black);
+                        map.SetPixel(x + (1 * sign), y + 2, Color.Black);
+                        break;
+                    case Pattern.b3:
+                        map.SetPixel(x + (1 * sign), y + 1, Color.Black);
+                        map.SetPixel(x + (2 * sign), y + 2, Color.Black);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            
         }
 
         public Form1()
