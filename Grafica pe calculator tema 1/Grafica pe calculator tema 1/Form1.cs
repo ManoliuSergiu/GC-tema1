@@ -15,9 +15,11 @@ namespace Grafica_pe_calculator_tema_1
         a1,
         a2,
         a3,
+        a4,
         b1,
         b2,
-        b3
+        b3,
+        b4
     }
     public partial class Form1 : Form
     {
@@ -31,12 +33,12 @@ namespace Grafica_pe_calculator_tema_1
         private void MakeLine()
         {
             map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            AlgorithmSelector(x0, y0, x1, y1, trackBar1.Value,map);
+            AlgorithmSelector(x0, y0, x1, y1, map);
             pictureBox1.Image = map;
 
         }
 
-        private void AlgorithmSelector(int x0, int y0, int x1, int y1, int thickness,Bitmap map)
+        private void AlgorithmSelector(int x0, int y0, int x1, int y1, Bitmap map)
         {
             if (Math.Abs(y1 - y0) < Math.Abs(x1 - x0))
             {
@@ -126,19 +128,18 @@ namespace Grafica_pe_calculator_tema_1
                 {
                     tick = tick1;
 
-                    // ifuri-le asta sunt pentru limitarea  x si y in zona de desenat
-                    if (e.X > trackBar1.Value && e.X < pictureBox1.Width)
+                    if (e.X > 1 && e.X < pictureBox1.Width)
                         x1 = e.X;
                     else if (e.X >= pictureBox1.Width)
-                        x1 = pictureBox1.Width - 1 - trackBar1.Value;
+                        x1 = pictureBox1.Width - 1 - 1;
                     else
-                        x1 = 1 + trackBar1.Value;
-                    if (e.Y > trackBar1.Value && e.Y < pictureBox1.Height)
+                        x1 = 1 + 1;
+                    if (e.Y > 1 && e.Y < pictureBox1.Height)
                         y1 = e.Y;
                     else if (e.Y >= pictureBox1.Height)
-                        y1 = pictureBox1.Height - 1 - trackBar1.Value;
+                        y1 = pictureBox1.Height - 1 - 1;
                     else
-                        y1 = 1 + trackBar1.Value;
+                        y1 = 1 + 1;
 
                     MakeLine();
                 }
@@ -149,8 +150,7 @@ namespace Grafica_pe_calculator_tema_1
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
             MakeLinePermanent();
-            if (e.Button == MouseButtons.Right) // Clear la zona de desenat
-            {
+            if (e.Button == MouseButtons.Right)             {
                 bg_map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
                 pictureBox1.BackgroundImage = bg_map;
                 map = new Bitmap(pictureBox1.Width, pictureBox1.Height);
@@ -162,7 +162,7 @@ namespace Grafica_pe_calculator_tema_1
         private void MakeLinePermanent()
         {
             pictureBox1.BackgroundImage = bg_map;
-            AlgorithmSelector(x0, y0, x1, y1, trackBar1.Value,bg_map);
+            AlgorithmSelector(x0, y0, x1, y1, bg_map);
             pictureBox1.BackgroundImage = bg_map;
         }
 
@@ -181,11 +181,13 @@ namespace Grafica_pe_calculator_tema_1
             current_y = y0;
             incrE = 2 * dy;
             incrNE = 2 * (dy - dx);
-            cond = 4 * dy;
+            cond = 2 * dy;
             d = 4 * dy - dx;
             map.SetPixel(current_x,current_y,Color.Black);
-            while (current_x < x1)
+            while (current_x < x1-1)
             {
+                label1.Text = dy / (double)dx+"";
+              
                 if(d < 0)
                 {
                     DrawPixels(Pattern.a1, current_x, current_y, map, sign);
@@ -203,12 +205,24 @@ namespace Grafica_pe_calculator_tema_1
                     }
                     else
                     {
-                        DrawPixels(Pattern.a3, current_x, current_y, map, sign);
-                        current_y += 2*sign;
-                        d += 2*incrNE;
+                        if (d<=2*cond)
+                        {
+                             DrawPixels(Pattern.a3, current_x, current_y, map, sign);
+                             current_y += 1*sign;
+                             d += incrNE;
+                             d += incrE;
+                        }
+                        else
+                        {
+                            DrawPixels(Pattern.a4, current_x, current_y, map, sign);
+                            current_y += 2 * sign;
+                            d += 2 * incrNE;
+                        }
 
                     }
                 }
+                
+                map.SetPixel(x1, y1, Color.Black);
                 current_x += 2;
             }
         }
@@ -227,10 +241,10 @@ namespace Grafica_pe_calculator_tema_1
             current_y = y0;
             incrE = 2 * dx;
             incrNE = 2 * (dx - dy);
-            cond = 4 * dx;
+            cond = 2 * dx;
             d = 4 * dx - dy;
             map.SetPixel(current_x, current_y, Color.Black);
-            while (current_y < y1)
+            while (current_y < y1 -1)
             {
                 if (d < 0)
                 {
@@ -249,12 +263,24 @@ namespace Grafica_pe_calculator_tema_1
                     }
                     else
                     {
-                        DrawPixels(Pattern.b3, current_x, current_y, map, sign);
-                        current_x += 2 * sign;
-                        d += 2 * incrNE;
 
+                        if (d <= 2 * cond)
+                        {
+                            DrawPixels(Pattern.b3, current_x, current_y, map, sign);
+                            current_x += 1 * sign;
+                            d +=  incrNE;
+                            d += incrE;
+
+                        }
+                        else
+                        {
+                            DrawPixels(Pattern.b4, current_x, current_y, map, sign);
+                            current_x += 2 * sign;
+                            d += 2 * incrNE;
+                        }
                     }
                 }
+                map.SetPixel(x1, y1, Color.Black);
                 current_y += 2;
             }
         }
@@ -274,6 +300,10 @@ namespace Grafica_pe_calculator_tema_1
                         break;
                     case Pattern.a3:
                         map.SetPixel(x + 1, y + (1 * sign), Color.Black);
+                        map.SetPixel(x + 2, y + (1 * sign), Color.Black);
+                        break;
+                    case Pattern.a4:
+                        map.SetPixel(x + 1, y + (1 * sign), Color.Black);
                         map.SetPixel(x + 2, y + (2 * sign), Color.Black);
                         break;
                     case Pattern.b1:
@@ -285,6 +315,10 @@ namespace Grafica_pe_calculator_tema_1
                         map.SetPixel(x + (1 * sign), y + 2, Color.Black);
                         break;
                     case Pattern.b3:
+                        map.SetPixel(x + (1 * sign), y + 1, Color.Black);
+                        map.SetPixel(x + (1 * sign), y + 2, Color.Black);
+                        break;
+                    case Pattern.b4:
                         map.SetPixel(x + (1 * sign), y + 1, Color.Black);
                         map.SetPixel(x + (2 * sign), y + 2, Color.Black);
                         break;
